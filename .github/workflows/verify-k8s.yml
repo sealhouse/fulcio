@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: Extract version of Go to use
-        run: echo "GOVERSION=$(awk -F'[:@]' '/FROM golang/{print $2; exit}' Dockerfile)" >> $GITHUB_ENV
+        run: echo "GOVERSION=$(awk -F 'golang:' 'NF>1 {split($2, a, /[-@]/); print a[1]; exit}' Dockerfile)" >> $GITHUB_ENV
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -65,6 +65,7 @@ jobs:
       REGISTRY_NAME: registry.local
       REGISTRY_PORT: 5000
       KO_PREFIX: registry.local:5000/fulcio
+      KO_DEFAULTBASEIMAGE: gcr.io/distroless/static-debian13:nonroot
       GIT_HASH: ${{ github.sha }}
       GIT_VERSION: test
       INSECURE_REGISTRY: true
@@ -75,7 +76,7 @@ jobs:
           persist-credentials: false
 
       - name: Extract version of Go to use
-        run: echo "GOVERSION=$(awk -F'[:@]' '/FROM golang/{print $2; exit}' Dockerfile)" >> $GITHUB_ENV
+        run: echo "GOVERSION=$(awk -F 'golang:' 'NF>1 {split($2, a, /[-@]/); print a[1]; exit}' Dockerfile)" >> $GITHUB_ENV
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -85,7 +86,7 @@ jobs:
       - uses: ko-build/setup-ko@61b4d1d396f5b2e7d6bb6fefdce3dc38d1a13445 # v0.10
 
       - name: Setup Cluster
-        uses: chainguard-dev/actions/setup-kind@3403a578b543fd3f0debdaef9dd989ae54e3fcef # v1.6.41
+        uses: chainguard-dev/actions/setup-kind@8f31e9482b447ff2c69eca944a09b4b31a4a85d0 # v1.7.2
         with:
           k8s-version: 1.35.x
           registry-authority: ${{ env.REGISTRY_NAME }}:${{ env.REGISTRY_PORT }}
@@ -220,4 +221,4 @@ jobs:
 
       - name: Collect diagnostics and upload
         if: ${{ failure() }}
-        uses: chainguard-dev/actions/kind-diag@3403a578b543fd3f0debdaef9dd989ae54e3fcef # v1.6.41
+        uses: chainguard-dev/actions/kind-diag@8f31e9482b447ff2c69eca944a09b4b31a4a85d0 # v1.7.2
