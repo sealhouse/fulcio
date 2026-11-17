@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Debian 13 (Trixie) image to build binary for distroless/static-debian13
-FROM --platform=$BUILDPLATFORM golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27.3-trixie@sha256:af1bfc2614ebb1dbd31af514b78740fd678850e76498762b425ecee4c5c6ea80 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ENV APP_ROOT=/opt/app-root
@@ -35,7 +35,7 @@ ARG SERVER_LDFLAGS
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -trimpath -ldflags "${SERVER_LDFLAGS}" -o fulcio-server .
 
 # Production deployment build
-FROM gcr.io/distroless/static-debian13:nonroot@sha256:25ac8f0c3b2334a9eb05452266bd4697864a8c8ef0ef71e5e6480d7f92868329 AS deploy
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:aafe993665bf6200db38a02c11a9351e782a84b6a45e7f33b6695638c88e3931 AS deploy
 # Retrieve the binary from the previous stage
 COPY --from=builder /opt/app-root/src/fulcio-server /usr/local/bin/fulcio-server
 # Set the binary as the entrypoint of the container
@@ -43,7 +43,7 @@ ENTRYPOINT ["/usr/local/bin/fulcio-server"]
 CMD ["serve"]
 
 # Local deployment build (includes a shell and curl)
-FROM golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 AS local-deploy
+FROM golang:1.27.3-trixie@sha256:af1bfc2614ebb1dbd31af514b78740fd678850e76498762b425ecee4c5c6ea80 AS local-deploy
 # Retrieve the binary from the previous stage
 COPY --from=builder /opt/app-root/src/fulcio-server /usr/local/bin/fulcio-server
 # Set the binary as the entrypoint of the container
@@ -71,7 +71,7 @@ ARG SERVER_LDFLAGS
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -gcflags "all=-N -l" -trimpath -ldflags "${SERVER_LDFLAGS}" -o fulcio-server_debug .
 
 # Multi-stage debugger build
-FROM golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 AS debug
+FROM golang:1.27.3-trixie@sha256:af1bfc2614ebb1dbd31af514b78740fd678850e76498762b425ecee4c5c6ea80 AS debug
 ARG TARGETOS
 ARG TARGETARCH
 # Copy dlv binary, either from bin/ when the build and target platform are the same, or
